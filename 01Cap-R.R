@@ -81,6 +81,63 @@ ggplot(data = mpg)+
 ggplot(data = mpg)+
   geom_point(mapping = aes(x = displ, y = hwy), shape = 4)
 
+## Pg 12 - Exercicio 01
+## 1) O que há de errado com este código? Porque os pontos não estão pretos (correto é azul)?
+## Resposta: porque a cor está inluida no argumento de mapeamento e deveria estar no estetico
+ggplot(mpg)+
+  geom_point(aes(displ, hwy), colour = "blue")
+
+## Pg 12 - Exercicio 03
+## 3) Mapeie uma variável continua para color, size e shape.
+## Como essas estéticas se comportam de maneira diferente para variáveis categóricas e contínuas?
+
+## com variavel continua na cor
+glimpse(mpg)
+
+ggplot(mpg, aes(x = displ, y = hwy, colour = cty)) +
+  geom_point()
+
+## com variavel continua no size
+
+ggplot(mpg, aes(x = displ, y = hwy, size = cty)) +
+  geom_point()
+
+
+## com variavel continua no shape dá erro, isso porque uma variável numérica possui ordem, 
+## mas, os shapes não possuem ordem, por exemplo, um quadrado não é menor ou maior que um circulo.
+
+ggplot(mpg, aes(x = displ, y = hwy, shape = cty)) +
+  geom_point()
+
+## Pg 12 - Exercicio 04
+## 4) O que acontece se você mapear a mesma variável a várias estéticas?
+## Resposta: O código executa, mas fica redundante mapear a mesma variável para estéticas diferentes
+ggplot(mpg)+
+  geom_point(aes(displ, hwy, colour = cty, size = cty))
+
+
+## Pg 12 - Exercicio 05
+## 5) O que a estética stroke faz? Com que formas ela trabalha? (Dica: use ?geom_point)
+## Resposta: Stroke serve para mudar a largura da borda
+
+ggplot(mpg)+
+  geom_point(aes(cty, cyl), 
+             shape = 21, 
+             colour = "green", 
+             fill = "red", 
+             size = 2, 
+             stroke = 5
+             )
+
+## Pg 13 - Exercicio 06
+## 6) O que acontece se você mapear uma estética a algo diferente de um nome de variável, como aes(coloar = displ < 5)
+## Resposta: O ggplot cria como se fosse uma categorica de displ Sim para < que 5 e Nao para > que 5
+
+ggplot(mpg, aes(displ, hwy, colour = displ < 5))+
+  geom_point()
+
+
+
 #Facetas (facet): muito utilizado com variavel categorica
 #o facet é uma camada do ggplot e vc sempre como o ~ antes da variável categórica
 
@@ -93,6 +150,10 @@ ggplot(data = mpg)+
   geom_point(mapping = aes(x = displ, y = hwy))+
   facet_wrap(~ manufacturer, nrow = 4)
 
+
+## Pg 15 - Exercicio 01
+## 1) O que acontece se você criar facetas em uma variável contínua?
+## Resposta: Stroke serve para mudar a largura da borda
 
 #Pg 15: interpetração: 
 #os tipos de cilindrada são: 4, 5, 6 e 8
@@ -222,6 +283,131 @@ ggplot(stock_amzn, aes(date, close)) +
 
 stock_amzn <- stock_amzn %>%  mutate(low2 = low * -1)
 
+
+### PROPORTION (proporcao, representatividade)
+## GEOM BAR
+
+#======+ 
+# pg 22
+#======+
+
+#=====================================================
+# INTERPRETACAO: existem mais diamantes com corte bom
+#====================================================
+
+## Lembrando; no geom_bar, quando for utilizar o stat padrao
+## que é o count, então NAO precisa colocar o eixo Y
+
+## por padrão, se eu nao colocar o y, o ggplot entende assim
+ggplot(diamonds) + 
+  geom_bar(aes(x=  cut, y =  ..count..), stat = "count")
+
+
+## mas posso escrever assim
+## pg 22
+
+(diamonds)
+ggplot(diamonds)+
+  geom_bar(aes(x = cut))
+
+## geom_bar com mudança de stats (estatistica). 
+## ao invés de usar o stats default que é o count
+## ele usará o peso de cada barra que está presente no dado. 
+## Lembrando: No geom_bar, quando NAO for utilizar o stat padrao, que é o count
+## então precisa colocar o eixo y, pois o eixo Y será o peso.
+
+## pg 23
+
+demo <- tribble(
+  ~a, ~b,
+  "bar_1", 20,
+  "bar_2", 30,
+  "bar_3", 40
+)
+
+ggplot(demo)+
+  geom_bar(aes(x=a, y =b), stat = "identity")
+
+## pg 24
+## utilizando a proporçao em vez de count
+## se for utilizar a proporcao, tem que setar a variável y
+## geom_bar com prop e com count
+
+ ggplot( diamonds) +
+  geom_bar( aes(x = cut, y = ..prop.., group = 1))
+ 
+ 
+ ## ou pode escrever assim, com stat(prop)
+ ggplot( diamonds) +
+   geom_bar( aes(x = cut, stat(prop), group = 1))
+ 
+
+ ## mostrando a tabela acima
+ plt <- ggplot(data = diamonds) +
+   geom_bar(mapping = aes(x = cut, y = ..prop.., group = 1))
+ plt_b <- ggplot_build(plt)
+ plt_b$data[[1]]
+ 
+ 
+ ## geom_bar com prop porém com percentual na escala
+ ggplot(data = diamonds) + 
+   geom_bar(mapping = aes(x = cut, y = ..prop.., group = 1), stat = "count") + 
+   scale_y_continuous(labels = scales::percent_format())
+ 
+ 
+ ggplot(diamonds, aes(x=cut, group=interaction(clarity, color), fill=color)) + 
+   geom_bar(aes(y=..prop..), stat="count", position=position_dodge()) +
+   scale_y_continuous(limits=c(0,1),labels = scales::percent) +
+   ylab("Percent of Sample") +
+   ggtitle("Show precentages in bar chart")
+ 
+ 
+ ## geom_bar com proporcao dentro de cada barra
+ ## acrescentando paleta de cores - Set
+ ggplot(diamonds, aes(x = color)) + 
+   geom_bar(aes( y = ..count../sum(..count..), fill = cut)) + 
+   scale_fill_brewer(palette = "Set3") + 
+   ylab("Percent") + 
+   ggtitle("Show precentages in bar chart")
+ 
+ ## pg 25
+ ## com estatistica
+ 
+ ggplot(diamonds)+
+   stat_summary(aes(cut, depth),
+                fun.ymin = min,
+                fun.ymax = max,
+                fun.y = median
+                )
+
+
+ 
+ ## PIE CHART
+ ggplot(diamonds, aes(x="", y = ..count.., fill=cut))+
+   geom_bar(width = 1)+
+   coord_polar(theta = "y", start=0) #coord_polar: transforma em pie chart
+ 
+ 
+ ## pg 26 exercicio
+ ## 02. O que geom_col faz? qual a diferenca entre ele e o geom_bar
+ 
+ ## GEOM COLUMN
+ 
+ 
+Titanic
+Titanic <- as.data.frame(Titanic)
+View(Titanic)
+
+
+ggplot(Titanic) + 
+  geom_col(aes(x = Class, y = Freq, fill = Survived), position = "dodge") + #dodge: evita objetos sobrepostos lado a lado
+  coord_flip() +
+  theme(legend.position = "top")
+
+
+
+
+ 
 ###DISTRIBUTION
 ## SCATTER PLOT (single variable)
 
@@ -260,4 +446,81 @@ ggplot(mtcars) +
 #juntando size e alpha (transparência)
 ggplot(mtcars) +
   geom_point(aes(x = wt, y = mpg, size = cyl), alpha = 0.3, colour = 'green')
+
+#=========================================
+# adicionando SMOOOTH: plotam previsões
+#com 2 geoms
+#=========================================
+ggplot(mpg)+
+  geom_point(aes(displ, hwy))+
+  geom_smooth(aes(displ, hwy))
+
+#com 2 geom's, porém , com variavel global
+ggplot(mpg, aes(displ, hwy))+
+  geom_point()+
+  geom_smooth()
+
+
+#com 2 geom's, porém, com cor na classe
+mpg$class <- factor(mpg$class)
+mpg$drv <- factor(mpg$drv)
+
+ggplot(mpg, aes(displ, hwy))+
+  geom_point(aes(colour=class))+
+  geom_smooth()
+
+#sem o intervalo de confiança e com filter - pg 20
+ggplot(mpg, aes(displ, hwy))+
+  geom_point(aes(colour=class))+
+  geom_smooth(data = filter(mpg, class == "subcompact"),#filtrando a linha
+              se = FALSE #sem o intervalo de confiança
+              )
+
+#pg 20 - Exercicio 02
+#faz uma linha para cada drv (tração)
+ggplot(mpg, aes(displ, hwy, colour=drv))+
+  geom_point()+
+  geom_smooth(se = FALSE #sem o intervalo de confiança
+  )
+
+#sem legenda
+ggplot(mpg, aes(displ, hwy))+
+  geom_smooth(aes(colour = drv), show.legend = FALSE)
+
+#exercicios pg 21
+# 6 a
+ggplot(mpg, aes(displ, hwy))+
+  geom_point()+
+  geom_smooth(se = FALSE )
+
+#exercicios pg 21
+# 6 b
+ggplot(mpg, aes(displ, hwy))+
+  geom_point()+
+  geom_smooth(aes(colour = drv), show.legend = FALSE, se = FALSE)
+
+#exercicios pg 21
+# 6 c
+ggplot(mpg, aes(displ, hwy, colour = drv))+
+  geom_point()+
+  geom_smooth( se = FALSE)
+
+#exercicios pg 21
+# 6 d
+
+
+#exercicios pg 21
+# 6 e
+
+ggplot(mpg, aes(displ, hwy, colour = drv))+
+  geom_point()+
+  geom_smooth( aes(linetype = drv) , se = FALSE)
+
+
+### BOX PLOT
+## DIAGRAMA DE CAIXA; Calculam o resumo da distribuição
+
+
+
+
 
