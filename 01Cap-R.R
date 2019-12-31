@@ -153,24 +153,69 @@ ggplot(data = mpg)+
 
 ## Pg 15 - Exercicio 01
 ## 1) O que acontece se você criar facetas em uma variável contínua?
-## Resposta: Stroke serve para mudar a largura da borda
+## Resposta: A variável continua é transformada em variável categórica
+ggplot(mpg, aes(displ, cyl))+
+  geom_point()+
+  facet_wrap(~year)
 
-#Pg 15: interpetração: 
-#os tipos de cilindrada são: 4, 5, 6 e 8
-#para os modelos de tração nas 4 rodas, os cilindro sçao apenas 4, 6 e 8 
-#a concentração dos modelos está em 4 cilindradas e tração frontal
+## Pg 15 - Exercicio 02
+## 2) O que significam  células em um gráfico com facet_grid(drv~cyl)
+## Como elas se relacional a este gráfico.
+## Resposta: facet grid coloca o drv a direita e o cyl acima de tudo
+ggplot(mpg)+
+  geom_point(aes(hwy, cty))+
+  facet_grid(drv~cyl)
+
+## Pg 15 - Exercicio 03
+## 3) Que gráficos o código a seguir faz? O que . faz?
+## Resposta: Cria grids vertical (eixo y)
 ggplot(data = mpg)+
   geom_point(mapping = aes(x = displ, y = hwy))+
-  facet_wrap(drv ~ cyl)
+  facet_grid(drv ~ .)
 
-#Pg 15: interpetração:
-ggplot(data = mpg)+
-  geom_point(mapping = aes(x = displ, y = cyl))
-
-#Pg 15: interpetração:
 ggplot(data = mpg)+
   geom_point(mapping = aes(x = displ, y = hwy))+
   facet_wrap(drv ~ .)
+
+## Resposta: Cria grids horizontal (eixo x)
+ggplot(data = mpg)+
+  geom_point(mapping = aes(x = displ, y = hwy))+
+  facet_grid(.~ drv )
+
+ggplot(data = mpg)+
+  geom_point(mapping = aes(x = displ, y = hwy))+
+  facet_grid(.~ cyl )
+
+ggplot(data = mpg)+
+  geom_point(mapping = aes(x = displ, y = hwy))+
+  facet_wrap(.~ cyl )
+
+## Pg 15 - Exercicio 04
+## 4) Pegue o primeiro gráfico em facetas dessa seção.
+## Quais são as vantagem de usar facetas, em vez de estética de cor?
+## Quais são as desvantagens?
+## Como o equilibrio poderia mudar se você tivesse um conjunto de dados maior?
+## Resposta: Vantagem: analisar multiplas categorias, ficando organizado nas facetas as categorias. Melhor análise por categoria
+## Resposta: Desvantagem: Não conseguir visualizar o inter-relacionamento entre as categorias, como é no mesmo gráfico
+
+ggplot(mpg)+
+  geom_point(aes(displ, hwy))+
+  facet_wrap(~class, nrow = 2 )
+
+
+## Pg 16 - Exercicio 05
+## 5) Leia ?facet_wrap. O que nrow faz?o que ncol faz? 
+## Quais outras opções controlam o layout de painéis individuais? Porque facet_grid() não tem nrow e ncol?
+## Resposta: nrow e ncol determina o numero de linhas e colunas. Porém, para ser usada, tem que ter pelo menos uma variável categórica
+## Resposta: no grid não tem nrow e nem ncol, pois, a própria função escolha quantas linhas e colunas terão.
+
+ggplot(mpg)+
+  geom_point(aes(displ, hwy))+
+  facet_wrap(~fl, nrow = 2 )
+
+ggplot(mpg)+
+  geom_point(aes(displ, hwy))+
+  facet_grid(~fl)
 
 #Pg 15: interpetração: com o . ou sem o . (ponto) no facet_wrap nao faz diferenca. 
 #A diferença do ponto está no facet grid
@@ -209,6 +254,87 @@ ggplot(mpg)+
   geom_point(aes(displ, hwy), size = 1, color = "purple")+
   facet_grid(cyl ~ ., labeller = "label_both")
 
+## Pg 20 - Exercicio 01
+## 1) Que geom você usario para desenhar um grafico de linha?
+## Um diagrama de caixa (boxplot)?
+## Um histograma
+## Um gráfico de área
+## Resposta
+geom_line()
+geom_boxplot()
+geom_histogram()
+geom_area()
+
+## Pg 20 - Exercicio 02
+## 2) Execute este código em sua cabeça e preveja como será o resultado
+## Depois execute o código em R e confira suas previsões
+## Resposta: faz uma linha para cada drv (tração)
+ggplot(mpg, aes(displ, hwy, color = drv)) +
+  geom_point() +
+  geom_smooth(se = FALSE ) #sem o intervalo de confiança
+
+
+#sem o intervalo de confiança e com filter - pg 20
+ggplot(mpg, aes(displ, hwy))+
+  geom_point(aes(colour=class))+
+  geom_smooth(data = filter(mpg, class == "subcompact"),#filtrando a linha
+              se = FALSE #sem o intervalo de confiança
+  )
+
+
+## Pg 20 - Exercicio 03
+## 3) O que show.legend = FALSE faz? O que acontece se você removê-lo?
+## Porque você acha que usei isso anteriormente no capítulo?
+## Resposta: sem legenda
+ggplot(mpg, aes(displ, hwy, colour = drv))+
+  geom_smooth( show.legend = FALSE)
+
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy, colour = drv))
+
+## Pg 20 - Exercicio 04
+## 4) O que o argumento se para geom_smooth? faz?
+## Resposta: adiciona faixa de erros em tempo de execução
+
+
+
+## Pg 21 - Exercicio 06
+## 6a) 
+ggplot(mpg, aes(displ, hwy))+
+  geom_point()+
+  geom_smooth(se = FALSE )
+
+## Pg 21 - Exercicio 06
+## 6b) 
+ggplot(mpg, aes(displ, hwy))+
+  geom_point()+
+  geom_smooth(aes(colour = drv), show.legend = FALSE, se = FALSE)
+
+
+## Pg 21 - Exercicio 06
+## 6c) 
+ggplot(mpg, aes(displ, hwy, colour = drv))+
+  geom_point()+
+  geom_smooth( se = FALSE)
+
+
+## Pg 21 - Exercicio 06
+## 6d) 
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = drv)) +
+  geom_smooth(se = FALSE)
+
+## Pg 21 - Exercicio 06
+## 6e) 
+ggplot(mpg, aes(displ,hwy)) +
+  geom_point(aes(colour = drv)) +
+  geom_smooth(aes(linetype = drv), se = FALSE)
+
+## Pg 21 - Exercicio 06
+## 6f)
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(size = 4, color = "white") +
+  geom_point(aes(colour = drv))
 
 ##########  The different types of graphs
 
@@ -370,16 +496,46 @@ ggplot(demo)+
    ylab("Percent") + 
    ggtitle("Show precentages in bar chart")
  
- ## pg 25
- ## com estatistica
  
+ ## Transformações estatísticas
+ ## Pg 26 - Exercicio 01
+ ## 1) Qual é o geom padrão associado a stat_summary()? 
+ ## Como você poderia reescrever o gráfico anterior usando essa função geom, em vez da função stat?
+ ## Resposta: 
  ggplot(diamonds)+
    stat_summary(aes(cut, depth),
                 fun.ymin = min,
                 fun.ymax = max,
-                fun.y = median
-                )
-
+                fun.y = median)
+ 
+ ## Transformações estatísticas
+ ## Pg 26 - Exercicio 03
+ ## 3) A maioria dos geoms e stats vem em pares, que são quase sempre usados juntos.
+ ## Leia a documentação e faça uma lista de todos os pares.
+ ## O que eles têm em comum?
+ ## Resposta: Todos são iguais, exceto os abaixo e além disso,
+ ## os geoms são camadas de graficos, e os stats são camadas de estatísticas
+ geom_bar(); stat_count()
+ geom_count(); stat_sum()
+ geom_freqpoly(); stat_bin()
+ geom_histogram(); stat_bin()
+ 
+ ## Pg 26 - Exercicio 04
+ ## 4) Quais variáveis stat_smooth() calcula? Quais parâmetros controlam seu comportamento?
+ ## Resposta: abaixo
+   #y: valor previsto
+   #ymin: menor valor no intervalo de confiança
+   #ymax: maior valor no intervalo de confiança
+   #se: erro padrão
+ 
+ ## Pg 26 - Exercicio 05
+ ## 5) Quais variáveis stat_smooth() calcula? 
+ ## Quais parâmetros controlam seu comportamento?
+ ## Resposta: o parâmetro group = 1 é para dar peso e a soma do peso é igual a 1 (100%)
+ ## sem o group = 1, todas as barras serão do mesmo tamanho e terão o mesmo peso.
+ 
+ ggplot(diamonds) +
+   geom_bar(aes(cut, ..count.. / sum(..count..), fill = color))
 
  
  ## PIE CHART
@@ -388,12 +544,8 @@ ggplot(demo)+
    coord_polar(theta = "y", start=0) #coord_polar: transforma em pie chart
  
  
- ## pg 26 exercicio
- ## 02. O que geom_col faz? qual a diferenca entre ele e o geom_bar
  
- ## GEOM COLUMN
- 
- 
+## GEOM COLUMN
 Titanic
 Titanic <- as.data.frame(Titanic)
 View(Titanic)
@@ -403,9 +555,6 @@ ggplot(Titanic) +
   geom_col(aes(x = Class, y = Freq, fill = Survived), position = "dodge") + #dodge: evita objetos sobrepostos lado a lado
   coord_flip() +
   theme(legend.position = "top")
-
-
-
 
  
 ###DISTRIBUTION
@@ -469,58 +618,9 @@ ggplot(mpg, aes(displ, hwy))+
   geom_point(aes(colour=class))+
   geom_smooth()
 
-#sem o intervalo de confiança e com filter - pg 20
-ggplot(mpg, aes(displ, hwy))+
-  geom_point(aes(colour=class))+
-  geom_smooth(data = filter(mpg, class == "subcompact"),#filtrando a linha
-              se = FALSE #sem o intervalo de confiança
-              )
-
-#pg 20 - Exercicio 02
-#faz uma linha para cada drv (tração)
-ggplot(mpg, aes(displ, hwy, colour=drv))+
-  geom_point()+
-  geom_smooth(se = FALSE #sem o intervalo de confiança
-  )
-
-#sem legenda
-ggplot(mpg, aes(displ, hwy))+
-  geom_smooth(aes(colour = drv), show.legend = FALSE)
-
-#exercicios pg 21
-# 6 a
-ggplot(mpg, aes(displ, hwy))+
-  geom_point()+
-  geom_smooth(se = FALSE )
-
-#exercicios pg 21
-# 6 b
-ggplot(mpg, aes(displ, hwy))+
-  geom_point()+
-  geom_smooth(aes(colour = drv), show.legend = FALSE, se = FALSE)
-
-#exercicios pg 21
-# 6 c
-ggplot(mpg, aes(displ, hwy, colour = drv))+
-  geom_point()+
-  geom_smooth( se = FALSE)
-
-#exercicios pg 21
-# 6 d
-
-
-#exercicios pg 21
-# 6 e
-
-ggplot(mpg, aes(displ, hwy, colour = drv))+
-  geom_point()+
-  geom_smooth( aes(linetype = drv) , se = FALSE)
 
 
 ### BOX PLOT
 ## DIAGRAMA DE CAIXA; Calculam o resumo da distribuição
-
-
-
 
 
